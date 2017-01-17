@@ -2229,18 +2229,27 @@ function cloner(deep, item) {
   if (_type2['default'].object(item)) {
     var o = {};
 
-    var k = undefined;
+    var i = undefined,
+        l = undefined,
+        k = undefined;
 
     // NOTE: could be possible to erase computed properties through `null`.
-    for (k in item) {
+    var props = Object.getOwnPropertyNames(item);
+    for (i = 0, l = props.length; i < l; i++) {
+      k = props[i];
       if (_type2['default'].lazyGetter(item, k)) {
         Object.defineProperty(o, k, {
           get: Object.getOwnPropertyDescriptor(item, k).get,
           enumerable: true,
           configurable: true
         });
-      } else if (hasOwnProp.call(item, k)) {
-        o[k] = deep ? cloner(true, item[k]) : item[k];
+      } else {
+        Object.defineProperty(o, k, {
+          value: deep ? cloner(true, item[k]) : item[k],
+          enumerable: Object.getOwnPropertyDescriptor(item, k).enumerable,
+          writable: true,
+          configurable: true
+        });
       }
     }
     return o;
